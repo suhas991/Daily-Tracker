@@ -3,6 +3,7 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useTaskStore } from '../store/taskStore';
 import TaskList from '../components/TaskList';
+import jsPDF from 'jspdf';
 
 const DAYS_OF_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -53,15 +54,10 @@ export default function Month() {
   const daysInMonth = new Date(year, mon + 1, 0).getDate();
   const firstDay = new Date(year, mon - 1, 1).getDay();
 
-  // Export monthly report
+  // Export monthly report as PDF
   const exportMonthlyReport = () => {
     const monthName = new Date(year, mon - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-    let report = `📊 DAILY TRACKER - MONTHLY REPORT\n`;
-    report += `═══════════════════════════════════════════\n`;
-    report += `Month: ${monthName}\n`;
-    report += `Generated: ${new Date().toLocaleDateString('en-US', { dateStyle: 'full' })}\n`;
-    report += `═══════════════════════════════════════════\n\n`;
-
+    
     // Calculate statistics
     let totalTasks = 0;
     let completedTasks = 0;
@@ -87,63 +83,136 @@ export default function Month() {
       }
     }
 
+    // Create PDF
+    const doc = new jsPDF();
+    let yPos = 20;
+    const lineHeight = 7;
+    const pageHeight = doc.internal.pageSize.height;
+    const margin = 20;
+
+    // Helper function to check if we need a new page
+    const checkPageBreak = (additionalLines = 1) => {
+      if (yPos + (additionalLines * lineHeight) > pageHeight - margin) {
+        doc.addPage();
+        yPos = 20;
+      }
+    };
+
+    // Title
+    doc.setFontSize(18);
+    doc.setFont(undefined, 'bold');
+    doc.text('DAILY TRACKER - MONTHLY REPORT', 105, yPos, { align: 'center' });
+    yPos += 10;
+
+    // Header Info
+    doc.setFontSize(11);
+    doc.setFont(undefined, 'normal');
+    doc.text(`Month: ${monthName}`, 20, yPos);
+    yPos += lineHeight;
+    doc.text(`Generated: ${new Date().toLocaleDateString('en-US', { dateStyle: 'full' })}`, 20, yPos);
+    yPos += lineHeight + 5;
+
     // Summary Statistics
-    report += `📈 SUMMARY STATISTICS\n`;
-    report += `─────────────────────────────────────────\n`;
-    report += `Total Tasks: ${totalTasks}\n`;
-    report += `Completed Tasks: ${completedTasks}\n`;
-    report += `Pending Tasks: ${totalTasks - completedTasks}\n`;
-    report += `Overall Completion Rate: ${totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0}%\n`;
-    report += `Active Days: ${dailyStats.length} days\n\n`;
+    doc.setFontSize(14);
+    doc.setFont(undefined, 'bold');
+    doc.text('SUMMARY STATISTICS', 20, yPos);
+    yPos += lineHeight + 2;
+
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.text(`Total Tasks: ${totalTasks}`, 20, yPos);
+    yPos += lineHeight;
+    doc.text(`Completed Tasks: ${completedTasks}`, 20, yPos);
+    yPos += lineHeight;
+    doc.text(`Pending Tasks: ${totalTasks - completedTasks}`, 20, yPos);
+    yPos += lineHeight;
+    doc.text(`Overall Completion Rate: ${totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0}%`, 20, yPos);
+    yPos += lineHeight;
+    doc.text(`Active Days: ${dailyStats.length} days`, 20, yPos);
+    yPos += lineHeight + 5;
 
     // Daily Breakdown
-    report += `📅 DAILY BREAKDOWN\n`;
-    report += `─────────────────────────────────────────\n\n`;
+    checkPageBreak(3);
+    doc.setFontSize(14);
+    doc.setFont(undefined, 'bold');
+    doc.text('DAILY BREAKDOWN', 20, yPos);
+    yPos += lineHeight + 2;
 
+    doc.setFontSize(10);
     dailyStats.forEach((stat) => {
-      report += `${stat.day} - ${stat.date}\n`;
-      report += `  Progress: ${stat.completed}/${stat.total} tasks (${stat.percentage}%)\n`;
-      report += `  Tasks:\n`;
+      checkPageBreak(5 + stat.tasks.length);
+      
+      doc.setFont(undefined, 'bold');
+      doc.text(`${stat.day} - ${stat.date}`, 20, yPos);
+      yPos += lineHeight;
+      
+      doc.setFont(undefined, 'normal');
+      doc.text(`Progress: ${stat.completed}/${stat.total} tasks (${stat.percentage}%)`, 25, yPos);
+      yPos += lineHeight;
       
       stat.tasks.forEach((task) => {
-        const status = task.completed ? '✓' : '○';
+        const status = task.completed ? '[x]' : '[ ]';
         const taskType = task.isRecurring ? (task.recurType === 'daily' ? '[Daily]' : '[Weekly]') : '[Once]';
-        report += `    ${status} ${taskType} ${task.title}\n`;
+        const taskText = `${status} ${taskType} ${task.title}`;
+        
+        // Wrap long text
+        const splitText = doc.splitTextToSize(taskText, 160);
+        splitText.forEach((line) => {
+          checkPageBreak();
+          doc.text(line, 30, yPos);
+          yPos += lineHeight;
+        });
+        
         if (task.notes) {
-          report += `       Notes: ${task.notes}\n`;
+          const notesText = doc.splitTextToSize(`Notes: ${task.notes}`, 155);
+          notesText.forEach((line) => {
+            checkPageBreak();
+            doc.text(line, 35, yPos);
+            yPos += lineHeight;
+          });
         }
       });
-      report += `\n`;
+      yPos += 3;
     });
 
-    // Task Categories
+    // Recurring Tasks Section
     const recurringTasks = tasks.filter(t => t.isRecurring);
     if (recurringTasks.length > 0) {
-      report += `🔄 RECURRING TASKS\n`;
-      report += `─────────────────────────────────────────\n`;
+      checkPageBreak(3 + recurringTasks.length);
+      doc.setFontSize(14);
+      doc.setFont(undefined, 'bold');
+      doc.text('RECURRING TASKS', 20, yPos);
+      yPos += lineHeight + 2;
+      
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'normal');
       recurringTasks.forEach((task) => {
+        checkPageBreak(2);
         const type = task.recurType === 'daily' ? 'Daily' : `Weekly (${task.recurDays?.join(', ')})`;
-        report += `• ${task.title} - ${type}\n`;
-        if (task.notes) report += `  Notes: ${task.notes}\n`;
+        const taskText = doc.splitTextToSize(`- ${task.title} - ${type}`, 165);
+        taskText.forEach((line) => {
+          doc.text(line, 25, yPos);
+          yPos += lineHeight;
+        });
+        if (task.notes) {
+          const notesText = doc.splitTextToSize(`  Notes: ${task.notes}`, 160);
+          notesText.forEach((line) => {
+            checkPageBreak();
+            doc.text(line, 30, yPos);
+            yPos += lineHeight;
+          });
+        }
       });
-      report += `\n`;
     }
 
     // Footer
-    report += `═══════════════════════════════════════════\n`;
-    report += `Generated by Daily Tracker App\n`;
-    report += `Keep up the great work! 🎯\n`;
+    const footerY = pageHeight - 20;
+    doc.setFontSize(9);
+    doc.setFont(undefined, 'italic');
+    doc.text('Generated by Daily Tracker App', 105, footerY, { align: 'center' });
 
-    // Download as text file
-    const blob = new Blob([report], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `DailyTracker_Report_${year}-${String(mon).padStart(2, '0')}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    // Save PDF
+    doc.save(`DailyTracker_Report_${year}-${String(mon).padStart(2, '0')}.pdf`);
   };
 
   if (loading) return (

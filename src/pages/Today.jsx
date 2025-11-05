@@ -183,18 +183,6 @@ export default function Today() {
           </>
         )}
       </div>
-
-      {tasksForToday.length > 0 && (
-        <div className="mt-6 text-center">
-          <Link 
-            to="/editor" 
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition font-medium text-sm"
-          >
-            <span>+</span>
-            Add Task
-          </Link>
-        </div>
-      )}
     </div>
   );
 }

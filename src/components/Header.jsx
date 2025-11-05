@@ -13,7 +13,7 @@ export default function Header() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group" onClick={() => setMobileMenuOpen(false)}>
-            <div className="text-2xl">📅</div>
+            <img src="/vite.png" alt="Daily Tracker Logo" className="w-8 h-8 sm:w-10 sm:h-10" />
             <h1 className="font-bold text-lg sm:text-xl text-slate-900">
               Daily Tracker
             </h1>
@@ -49,21 +49,31 @@ export default function Header() {
             </Link>
           </nav>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg text-slate-700 hover:bg-slate-100"
-          >
-            {mobileMenuOpen ? (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          {/* Mobile Buttons */}
+          <div className="md:hidden flex items-center gap-2">
+            <Link
+              to="/editor"
+              className="p-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-            ) : (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            )}
-          </button>
+            </Link>
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-lg text-slate-700 hover:bg-slate-100"
+            >
+              {mobileMenuOpen ? (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Navigation */}
@@ -90,13 +100,6 @@ export default function Header() {
               }`}
             >
               Month
-            </Link>
-            <Link
-              to="/editor"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block px-4 py-2 rounded-lg bg-indigo-600 text-white font-medium text-center"
-            >
-              + Add Task
             </Link>
           </nav>
         )}
