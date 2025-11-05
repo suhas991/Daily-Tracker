@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTaskStore } from "../store/taskStore";
 import { Link } from "react-router-dom";
+import ConfirmModal from "../components/ConfirmModal";
 
 export default function Today() {
   const tasks = useTaskStore((state) => state.tasks);
@@ -10,9 +11,10 @@ export default function Today() {
   const toggleTaskCompletion = useTaskStore((state) => state.toggleTaskCompletion);
   const removeTask = useTaskStore((state) => state.removeTask);
   
-  const [selectedDate, setSelectedDate] = React.useState(
+  const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().slice(0, 10)
   );
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, taskId: null, taskTitle: '' });
 
   useEffect(() => {
     loadFromIDB();
@@ -170,7 +172,7 @@ export default function Today() {
                       <span className="hidden sm:inline ml-1">Edit</span>
                     </Link>
                     <button
-                      onClick={() => removeTask(t.id)}
+                      onClick={() => setDeleteModal({ isOpen: true, taskId: t.id, taskTitle: t.title })}
                       className="px-3 py-1.5 rounded-lg text-sm font-medium bg-red-50 text-red-700 hover:bg-red-100 transition"
                     >
                       <span>🗑️</span>
@@ -183,6 +185,14 @@ export default function Today() {
           </>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, taskId: null, taskTitle: '' })}
+        onConfirm={() => removeTask(deleteModal.taskId)}
+        title="Delete Task"
+        message={`Are you sure you want to delete "${deleteModal.taskTitle}"? This action cannot be undone.`}
+      />
     </div>
   );
 }

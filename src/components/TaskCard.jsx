@@ -1,8 +1,11 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import ConfirmModal from "./ConfirmModal";
 
 const DAYS_OF_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export default function TaskCard({ task, onToggle, onDelete }) {
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false });
   const getTaskTypeLabel = () => {
     if (!task.isRecurring) return { icon: "📅", text: "One-time" };
     if (task.recurType === 'daily') return { icon: "🔄", text: "Daily" };
@@ -62,7 +65,7 @@ export default function TaskCard({ task, onToggle, onDelete }) {
               <span className="hidden sm:inline ml-1">Edit</span>
             </Link>
             <button
-              onClick={() => onDelete(task.id)}
+              onClick={() => setDeleteModal({ isOpen: true })}
               className="px-3 py-1.5 rounded-lg text-sm font-medium bg-red-50 text-red-700 hover:bg-red-100 transition"
             >
               <span>🗑️</span>
@@ -71,6 +74,14 @@ export default function TaskCard({ task, onToggle, onDelete }) {
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false })}
+        onConfirm={() => onDelete(task.id)}
+        title="Delete Task"
+        message={`Are you sure you want to delete "${task.title}"? This action cannot be undone.`}
+      />
     </div>
   );
 }
