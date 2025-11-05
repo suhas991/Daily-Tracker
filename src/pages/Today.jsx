@@ -58,37 +58,34 @@ export default function Today() {
   return (
     <div className="animate-in fade-in duration-500">
       {/* Header Section */}
-      <div className="bg-white rounded-2xl shadow-xl border border-indigo-100 p-4 sm:p-6 md:p-8 mb-6 sm:mb-8">
-        <div className="flex flex-col gap-4">
+      <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-4 sm:mb-6">
+        <div className="flex flex-col gap-3">
           <div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
               {isToday ? "Today's Tasks" : "Tasks"}
             </h2>
-            <p className="text-slate-600 text-sm sm:text-base mt-2 flex items-center gap-2">
-              <span className="text-xl sm:text-2xl">📆</span>
-              <span className="font-medium wrap-break-word">
-                {new Date(selectedDate).toLocaleDateString('en-US', { 
-                  weekday: window.innerWidth < 640 ? 'short' : 'long',
-                  year: 'numeric', 
-                  month: window.innerWidth < 640 ? 'short' : 'long',
-                  day: 'numeric' 
-                })}
-              </span>
+            <p className="text-slate-600 text-sm mt-1">
+              {new Date(selectedDate).toLocaleDateString('en-US', { 
+                weekday: 'short',
+                year: 'numeric', 
+                month: 'short',
+                day: 'numeric' 
+              })}
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+          <div className="flex gap-2">
             <input
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="flex-1 border-2 border-slate-200 rounded-lg px-3 sm:px-4 py-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition text-sm sm:text-base"
+              className="flex-1 border border-slate-300 rounded-lg px-3 py-2 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition text-sm"
             />
             {!isToday && (
               <button
                 onClick={() => setSelectedDate(today)}
-                className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-all font-medium shadow-lg shadow-indigo-200 hover:shadow-xl text-sm sm:text-base whitespace-nowrap"
+                className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition font-medium text-sm whitespace-nowrap"
               >
-                Jump to Today
+                Today
               </button>
             )}
           </div>
@@ -98,26 +95,26 @@ export default function Today() {
       {/* Tasks List */}
       <div className="space-y-4">
         {tasksForToday.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 sm:p-12 text-center">
-            <div className="text-5xl sm:text-6xl mb-4">📝</div>
-            <p className="text-slate-600 text-base sm:text-lg mb-4">No tasks for this date.</p>
+          <div className="bg-white rounded-lg shadow-sm p-8 sm:p-12 text-center">
+            <div className="text-5xl mb-4">📝</div>
+            <p className="text-slate-600 text-base mb-4">No tasks for this date.</p>
             <Link 
               to="/editor" 
-              className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg bg-linear-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 transition-all font-medium shadow-lg shadow-indigo-200 hover:shadow-xl hover:scale-105 text-sm sm:text-base"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition font-medium text-sm"
             >
-              <span className="text-lg sm:text-xl">+</span>
-              Add Your First Task
+              <span>+</span>
+              Add Task
             </Link>
           </div>
         ) : (
           <>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 bg-white rounded-xl p-4 shadow-md border border-slate-100">
-              <p className="text-slate-600 font-medium text-sm sm:text-base">
+            <div className="bg-white rounded-lg p-4 shadow-sm mb-4">
+              <p className="text-slate-700 font-medium text-sm mb-2">
                 {tasksForToday.filter(t => t.completed).length} of {tasksForToday.length} completed
               </p>
-              <div className="w-full sm:w-48 bg-slate-200 rounded-full h-2">
+              <div className="w-full bg-slate-200 rounded-full h-2">
                 <div 
-                  className="bg-linear-to-r from-indigo-600 to-purple-600 h-2 rounded-full transition-all duration-500"
+                  className="bg-indigo-600 h-2 rounded-full transition-all duration-500"
                   style={{ width: `${(tasksForToday.filter(t => t.completed).length / tasksForToday.length) * 100}%` }}
                 />
               </div>
@@ -125,58 +122,56 @@ export default function Today() {
             {tasksForToday.map((t) => (
               <div
                 key={t.id}
-                className={`bg-white rounded-xl border-2 p-4 sm:p-6 transition-all duration-300 hover:shadow-2xl md:hover:scale-[1.02] ${
+                className={`bg-white rounded-lg border p-4 transition-all hover:shadow-md ${
                   t.completed 
-                    ? 'border-green-200 bg-green-50/50' 
-                    : 'border-indigo-100 hover:border-indigo-300'
+                    ? 'border-green-300 bg-green-50' 
+                    : 'border-slate-200 hover:border-indigo-400'
                 }`}
               >
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-3">
                   <div className="flex items-start gap-3">
-                    <div className={`text-xl sm:text-2xl shrink-0 ${t.completed ? 'opacity-50' : ''}`}>
-                      {t.completed ? '✅' : '⭐'}
+                    <div className={`text-xl shrink-0 ${t.completed ? 'opacity-50' : ''}`}>
+                      {t.completed ? '✅' : '📋'}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div
-                        className={`text-base sm:text-lg font-semibold wrap-break-word ${
-                          t.completed ? "line-through text-slate-400" : "text-slate-800"
+                        className={`text-base font-semibold wrap-break-word ${
+                          t.completed ? "line-through text-slate-500" : "text-slate-900"
                         }`}
                       >
                         {t.title}
                       </div>
                       {t.notes && (
-                        <div className="text-sm text-slate-600 mt-2 leading-relaxed wrap-break-word">{t.notes}</div>
+                        <div className="text-sm text-slate-600 mt-1 wrap-break-word">{t.notes}</div>
                       )}
                       {t.isRecurring && (
-                        <div className="flex items-center gap-2 mt-3">
-                          <span className="text-xs bg-indigo-100 text-indigo-700 px-2 sm:px-3 py-1 rounded-full font-medium">
-                            🔄 {t.recurType === 'daily' ? 'Daily Task' : `Weekly (${t.recurDays?.join(', ') || 'N/A'})`}
-                          </span>
-                        </div>
+                        <span className="inline-block text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded mt-2">
+                          {t.recurType === 'daily' ? '🔄 Daily' : '📅 Weekly'}
+                        </span>
                       )}
                     </div>
                   </div>
-                  <div className="flex gap-2 justify-end">
+                  <div className="flex gap-2 justify-end pt-2 border-t border-slate-100">
                     <button
                       onClick={() => toggleTaskCompletion(t.id, selectedDate, t.isRecurring)}
-                      className={`px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
                         t.completed
-                          ? "bg-slate-200 text-slate-600 hover:bg-slate-300"
-                          : "bg-green-500 text-white hover:bg-green-600 shadow-lg shadow-green-200"
+                          ? "bg-slate-200 text-slate-700 hover:bg-slate-300"
+                          : "bg-green-600 text-white hover:bg-green-700"
                       }`}
                     >
-                      {t.completed ? "↩ Undo" : "✓ Done"}
+                      {t.completed ? "Undo" : "Done"}
                     </button>
                     <Link
                       to={`/editor/${t.id}`}
-                      className="px-3 sm:px-4 py-2 rounded-lg text-sm font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 transition-all flex items-center justify-center"
+                      className="px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 transition flex items-center justify-center"
                     >
                       <span>✏️</span>
                       <span className="hidden sm:inline ml-1">Edit</span>
                     </Link>
                     <button
                       onClick={() => removeTask(t.id)}
-                      className="px-3 sm:px-4 py-2 rounded-lg text-sm font-medium bg-red-50 text-red-600 hover:bg-red-100 transition-all"
+                      className="px-3 py-1.5 rounded-lg text-sm font-medium bg-red-50 text-red-700 hover:bg-red-100 transition"
                     >
                       <span>🗑️</span>
                       <span className="hidden sm:inline ml-1">Delete</span>
@@ -190,13 +185,13 @@ export default function Today() {
       </div>
 
       {tasksForToday.length > 0 && (
-        <div className="mt-6 sm:mt-8 text-center">
+        <div className="mt-6 text-center">
           <Link 
             to="/editor" 
-            className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg bg-linear-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 transition-all font-medium shadow-lg shadow-indigo-200 hover:shadow-xl hover:scale-105 text-sm sm:text-base"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition font-medium text-sm"
           >
-            <span className="text-lg sm:text-xl">+</span>
-            Add Another Task
+            <span>+</span>
+            Add Task
           </Link>
         </div>
       )}
