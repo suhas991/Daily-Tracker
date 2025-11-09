@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useTaskStore } from "../store/taskStoreSupabase";
+import { useTaskStore } from "../store/taskStore";
 import { Link } from "react-router-dom";
 import ConfirmModal from "../components/ConfirmModal";
 

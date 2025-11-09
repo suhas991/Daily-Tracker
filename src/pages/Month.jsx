@@ -1,7 +1,7 @@
 // ------------------ pages/Month.js ------------------
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { useTaskStore } from '../store/taskStoreSupabase';
+import { useTaskStore } from '../store/taskStore';
 import TaskList from '../components/TaskList';
 import jsPDF from 'jspdf';
 
