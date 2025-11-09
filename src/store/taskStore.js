@@ -160,14 +160,16 @@ export const useTaskStore = create((set, get) => ({
   // Toggle task completion
   toggleTaskCompletion: async (taskId, dateStr, isRecurring) => {
     const state = get();
-    const currentStatus = state.completions[taskId]?.[dateStr] || false;
-    const newStatus = !currentStatus;
-
+    
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
       if (isRecurring) {
+        // For recurring tasks, check completion from completions object
+        const currentStatus = state.completions[taskId]?.[dateStr] || false;
+        const newStatus = !currentStatus;
+
         // For recurring tasks, use completions table
         if (newStatus) {
           // Add completion
@@ -202,6 +204,12 @@ export const useTaskStore = create((set, get) => ({
           return { completions: newCompletions };
         });
       } else {
+        // For one-time tasks, check completion from task's completed field
+        const task = state.tasks.find(t => t.id === taskId);
+        if (!task) return;
+        
+        const newStatus = !task.completed;
+
         // For one-time tasks, update the task itself
         await supabase
           .from('tasks')
