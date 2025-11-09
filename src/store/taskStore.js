@@ -5,9 +5,9 @@ import { supabase } from '../lib/supabase';
 const toSnakeCase = (task) => ({
   id: task.id,
   user_id: task.user_id || task.userId,
-  title: task.title,
-  notes: task.notes,
-  date: task.date,
+  title: task.title || '',
+  notes: task.notes || '',
+  date: task.date || null,
   is_recurring: task.isRecurring || false,
   recur_type: task.recurType || 'once',
   recur_days: task.recurDays || [],

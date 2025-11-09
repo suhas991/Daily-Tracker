@@ -43,7 +43,6 @@ export default function Editor() {
     if (!title.trim()) return alert('Title required');
     
     const data = {
-      id,
       title: title.trim(),
       notes: notes.trim(),
       date: taskType === 'once' ? date : null,
@@ -53,8 +52,11 @@ export default function Editor() {
       completed: editing?.completed || false,
     };
     
-    if (id) await updateTask({ ...editing, ...data });
-    else await addTask(data);
+    if (id) {
+      await updateTask({ ...editing, ...data, id });
+    } else {
+      await addTask(data);
+    }
     navigate('/');
   };
 
