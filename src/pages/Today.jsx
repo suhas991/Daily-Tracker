@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useTaskStore } from "../store/taskStore";
+import { useTaskStore } from "../store/taskStoreSupabase";
 import { Link } from "react-router-dom";
 import ConfirmModal from "../components/ConfirmModal";
 
@@ -7,7 +7,7 @@ export default function Today() {
   const tasks = useTaskStore((state) => state.tasks);
   const completions = useTaskStore((state) => state.completions);
   const loading = useTaskStore((state) => state.loading);
-  const loadFromIDB = useTaskStore((state) => state.loadFromIDB);
+  const loadFromSupabase = useTaskStore((state) => state.loadFromSupabase);
   const toggleTaskCompletion = useTaskStore((state) => state.toggleTaskCompletion);
   const removeTask = useTaskStore((state) => state.removeTask);
   
@@ -17,8 +17,8 @@ export default function Today() {
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, taskId: null, taskTitle: '' });
 
   useEffect(() => {
-    loadFromIDB();
-  }, [loadFromIDB]);
+    loadFromSupabase();
+  }, [loadFromSupabase]);
 
   const tasksForToday = useMemo(() => {
     const dateObj = new Date(selectedDate);

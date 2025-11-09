@@ -1,7 +1,7 @@
 // ------------------ pages/Month.js ------------------
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { useTaskStore } from '../store/taskStore';
+import { useTaskStore } from '../store/taskStoreSupabase';
 import TaskList from '../components/TaskList';
 import jsPDF from 'jspdf';
 
@@ -11,7 +11,7 @@ export default function Month() {
   const tasks = useTaskStore((state) => state.tasks);
   const completions = useTaskStore((state) => state.completions);
   const loading = useTaskStore((state) => state.loading);
-  const loadFromIDB = useTaskStore((state) => state.loadFromIDB);
+  const loadFromSupabase = useTaskStore((state) => state.loadFromSupabase);
   const toggleTaskCompletion = useTaskStore((state) => state.toggleTaskCompletion);
   const removeTask = useTaskStore((state) => state.removeTask);
   
@@ -22,8 +22,8 @@ export default function Month() {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
 
   useEffect(() => {
-    loadFromIDB();
-  }, [loadFromIDB]);
+    loadFromSupabase();
+  }, [loadFromSupabase]);
 
   const getTasksForDate = useCallback((dateStr) => {
     const dateObj = new Date(dateStr);

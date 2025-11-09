@@ -1,7 +1,7 @@
 // ------------------ pages/Editor.js ------------------
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { useTaskStore } from '../store/taskStore';
+import { useTaskStore } from '../store/taskStoreSupabase';
 
 const DAYS_OF_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 

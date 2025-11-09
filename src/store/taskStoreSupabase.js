@@ -1,6 +1,33 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 
+// Helper functions to convert between camelCase and snake_case
+const toSnakeCase = (task) => ({
+  id: task.id,
+  user_id: task.user_id || task.userId,
+  title: task.title,
+  notes: task.notes,
+  date: task.date,
+  is_recurring: task.isRecurring || false,
+  recur_type: task.recurType || 'once',
+  recur_days: task.recurDays || [],
+  completed: task.completed || false,
+  created_at: task.created_at || task.createdAt || new Date().toISOString(),
+});
+
+const toCamelCase = (task) => ({
+  id: task.id,
+  userId: task.user_id,
+  title: task.title,
+  notes: task.notes,
+  date: task.date,
+  isRecurring: task.is_recurring || false,
+  recurType: task.recur_type || 'once',
+  recurDays: task.recur_days || [],
+  completed: task.completed || false,
+  createdAt: task.created_at,
+});
+
 export const useTaskStore = create((set, get) => ({
   tasks: [],
   completions: {},
@@ -42,8 +69,11 @@ export const useTaskStore = create((set, get) => ({
       // Load from localStorage as backup
       const localCompletions = JSON.parse(localStorage.getItem('taskCompletions') || '{}');
 
+      // Convert tasks to camelCase
+      const camelCaseTasks = (tasks || []).map(toCamelCase);
+
       set({ 
-        tasks: tasks || [], 
+        tasks: camelCaseTasks, 
         completions: { ...localCompletions, ...completionsObj },
         loading: false 
       });
@@ -59,20 +89,21 @@ export const useTaskStore = create((set, get) => ({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const newTask = {
+      const dbTask = toSnakeCase({
         ...taskData,
         id: crypto.randomUUID(),
         user_id: user.id,
-        created_at: new Date().toISOString(),
-      };
+      });
 
       const { error } = await supabase
         .from('tasks')
-        .insert([newTask]);
+        .insert([dbTask]);
 
       if (error) throw error;
 
-      set((state) => ({ tasks: [newTask, ...state.tasks] }));
+      // Convert back to camelCase for local state
+      const camelTask = toCamelCase(dbTask);
+      set((state) => ({ tasks: [camelTask, ...state.tasks] }));
     } catch (error) {
       console.error('Error adding task:', error);
     }
@@ -81,9 +112,11 @@ export const useTaskStore = create((set, get) => ({
   // Update task in Supabase
   updateTask: async (updatedTask) => {
     try {
+      const dbTask = toSnakeCase(updatedTask);
+      
       const { error } = await supabase
         .from('tasks')
-        .update(updatedTask)
+        .update(dbTask)
         .eq('id', updatedTask.id);
 
       if (error) throw error;
