@@ -1,11 +1,19 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function Header() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
   
   const isActive = (path) => location.pathname === path;
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+  };
   
   return (
     <header className="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
@@ -47,6 +55,14 @@ export default function Header() {
             >
               + Add
             </Link>
+            {user && (
+              <button
+                onClick={handleSignOut}
+                className="ml-2 px-4 py-2 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 transition font-medium"
+              >
+                Sign Out
+              </button>
+            )}
           </nav>
 
           {/* Mobile Buttons */}
@@ -101,6 +117,17 @@ export default function Header() {
             >
               Month
             </Link>
+            {user && (
+              <button
+                onClick={() => {
+                  handleSignOut();
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-left px-4 py-2 rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 transition font-medium"
+              >
+                Sign Out
+              </button>
+            )}
           </nav>
         )}
       </div>
